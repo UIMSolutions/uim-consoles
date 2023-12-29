@@ -1,1 +1,1 @@
-module uim.myname.mixins;
+module uim.consoles.mixins;

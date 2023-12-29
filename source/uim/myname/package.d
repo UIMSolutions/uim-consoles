@@ -1,15 +1,15 @@
-module uim.myname;
+module uim.consoles;
 
 public { // required uim libraries
   import uim.core;
   import uim.oop;
 }
 
-public { // myname packages
-  import uim.myname.classes;
-  import uim.myname.exceptions;
-  import uim.myname.interfaces;
-  import uim.myname.helpers;
-  import uim.myname.mixins;
-  import uim.myname.tests;
+public { // consoles packages
+  import uim.consoles.classes;
+  import uim.consoles.exceptions;
+  import uim.consoles.interfaces;
+  import uim.consoles.helpers;
+  import uim.consoles.mixins;
+  import uim.consoles.tests;
 }

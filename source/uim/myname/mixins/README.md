@@ -1,1 +1,1 @@
-# Package 📦 uim.myname.mixins
+# Package 📦 uim.consoles.mixins
