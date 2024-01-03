@@ -1,6 +1,6 @@
-module uim.cake.consoles.exceptions.missingoption;
+module uim.consoles.exceptions.missingoption;
 
-import uim.cake;
+import uim.consoles;
 
 @safe:
 
@@ -12,45 +12,36 @@ class MissingOptionException : ConsoleException {
   // The valid suggestions.
   protected string[] _suggestions;
 
-  /**
-     * Constructor.
-     * Params:
-     * string amessage The string message.
-     * @param string arequested The requested value.
-     * @param string[] $suggestions The list of potential values that were valid.
-     * @param int $code The exception code if relevant.
-     * @param \Throwable|null $previous the previous exception.
-     */
   this(
-    string mymessage,
+    string message,
     string requestedValue,
-    string[] newSuggestions = null,
+    string[] suggestions = null,
     int exceptionCode = 0,
     Throwable previousException = null
   ) {
     _suggestions = newSuggestions;
     _requested = requestedValue;
-    super($message, exceptionCode, previousException);
+    super(message, exceptionCode, previousException);
   }
 
   // Get the message with suggestions
   string getFullMessage() {
-    auto result  = this.getMessage();
-    auto $bestGuess = this.findClosestItem(this.requested, this.suggestions);
-    if ($bestGuess) {
-      result  ~= "\nDid you mean: `{$bestGuess}`?";
+    auto result = this.getMessage();
+    auto bestGuess = this.findClosestItem(_requested, _suggestions);
+    if (bestGuess) {
+      result ~= "\nDid you mean: `%s`?".format(bestGuess);
     }
-    
-    auto $good = [];
-    foreach ($option; this.suggestions) {
-      if (levenshtein($option, this.requested) < 8) {
-        $good ~= "- " ~ $option;
+
+    string[] good;
+    foreach (suggestion; _suggestions) {
+      if (levenshtein(suggestion, _requested) < 8) {
+        good ~= "- " ~ suggestion;
       }
     }
-    if ($good) {
-      result  ~= "\n\nOther valid choices:\n\n" ~ join("\n", $good);
+    if (good) {
+      result ~= "\n\nOther valid choices:\n\n" ~ join("\n", good);
     }
-    return result ;
+    return result;
   }
 
   /**
@@ -59,22 +50,23 @@ class MissingOptionException : ConsoleException {
      * string aneedle Unknown option name trying to be used.
      * @param string[] $haystack Suggestions to look through.
      */
-  protected string findClosestItem(string myneedle, string[] haystack) {
-    $bestGuess = null;
-    foreach (anItem; $haystack) {
-      if (str_starts_with(anItem, $needle)) {
-        return  anItem;
+  protected string findClosestItem(string needle, string[] haystack) {
+    bestGuess = null;
+    foreach (haystackItem; haystack) {
+      if (haystackItem.startsWith(needle)) {
+        return haystackItem;
       }
     }
-    $bestScore = 4;
-    foreach (anItem; $haystack) {
-      $score = levenshtein($needle,  anItem);
 
-      if ($score < $bestScore) {
-        $bestScore = $score;
-        $bestGuess =  anItem;
+    auto bestScore = 4;
+    foreach (anItem; haystack) {
+      auto score = levenshtein(needle, anItem);
+
+      if (score < bestScore) {
+        bestScore = score;
+        bestGuess = anItem;
       }
     }
-    return $bestGuess;
+    return bestGuess;
   }
 }

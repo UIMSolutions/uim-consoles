@@ -7,6 +7,7 @@
 	],
 	"copyright": "Copyright © 2015-2024, Ozan Nurettin Süel",	
 	"license": "Apache-2.0",
+	"targetType": "library",
 	"configurations": [
 		{
 			"name": "offline",
@@ -33,6 +34,5 @@
 		"../../LIBS/uim-core",
 		"../../LIBS/uim-oop",
 		"./"
-	],
-	"targetType": "library"
+	]
 }

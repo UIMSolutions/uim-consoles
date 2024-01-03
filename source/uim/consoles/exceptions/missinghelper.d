@@ -1,6 +1,6 @@
-module uim.cake.consoles.exceptions.missinghelper;
+module uim.consoles.exceptions.missinghelper;
 
-import uim.cake;
+import uim.consoles;
 
 @safe:
 
