@@ -33,40 +33,44 @@ class HelpCommand : BaseCommand, ICommandCollectionAware {
      * Output text.
      * @param iterable<string, string|object> $commands The command collection to output.
      */
-    protected void asText(ConsoleIo aConsoleIo, iterable $commands) {
-        auto myInvert = [];
-        foreach ($name, className; $commands) {
-            if (isObject(className)) {
-                 className = className::class;
+    protected void asText(ConsoleIo aConsoleIo, STRINGAA commands) {
+        string[][string] myInvert = [];
+        foreach (name, className; commands) {
+            /* if (isObject(className)) {
+                 className = className.class;
+            }*/
+            if (!myInvert.isSet(className)) {
+                myInvert[className] = null;
             }
-            if (!isSet(myInvert[className])) {
-                myInvert[className] = [];
-            }
-            myInvert[className] ~= $name;
+            myInvert[className] ~= name;
         }
         
         auto anGrouped = [];
-        auto $plugins = Plugin::loaded();
-        foreach (className: $names; myInvert) {
-            preg_match("/^(.+)\\\\Command\\\\/",  className, $matches);
+        auto plugins = Plugin.loaded();
+        foreach (className, names; myInvert) {
+            preg_match("/^(.+)\\\\Command\\\\/",  className, matches);
             // Probably not a useful class
-            if ($matches.isEmpty) {
+            if (matches.isEmpty) {
                 continue;
             }
-            $namespace = str_replace("\\", "/", $matches[1]);
-            $prefix = "App";
-            if ($namespace == "Cake") {
-                $prefix = "UIM";
-            } elseif (in_array($namespace, $plugins, true)) {
-                $prefix = $namespace;
+            
+            auto namespace = matches[1].replace("\\", "/");
+            auto prefix = "App";
+            if (namespace == "UIM") {
+                prefix = "UIM";
+            } elseif (namespace.has(plugins)) {
+                prefix = namespace;
             }
-            $shortestName = this.getShortestName($names);
-            if (str_contains($shortestName, ".")) {
-                [, $shortestName] = split(".", $shortestName, 2);
+
+            auto shortestName = this.getShortestName($names);
+            if (shortestName.has(".")) {
+                [, shortestName] = split(".", $shortestName, 2);
             }
-             anGrouped[$prefix] ~= [
-                "name": $shortestName,
-                "description": isSubclass_of(className, BaseCommand.class) ?  className.getDescription(): "",
+            anGrouped[prefix] ~= [
+                "name": shortestName,
+                "description": isSubclass_of(className, BaseCommand.class) 
+                    ?  className.getDescription()
+                    : ""
             ];
         }
         ksort(anGrouped);
@@ -74,13 +78,13 @@ class HelpCommand : BaseCommand, ICommandCollectionAware {
         this.outputPaths(aConsoleIo);
          aConsoleIo.out("<info>Available Commands:</info>", 2);
 
-        foreach ($prefix: $names;  anGrouped) {
-             aConsoleIo.out("<info>{$prefix}</info>:");
-            sort($names);
-            foreach (someData; $names) {
+        foreach (prefix, names;  anGrouped) {
+            aConsoleIo.out("<info>%s</info>:".format(prefix));
+            auto sortedNames = names.sort;
+            foreach (someData; sortedNames) {
                  aConsoleIo.out(" - " ~ someData["name"]);
-                if (someData["description"]) {
-                     aConsoleIo.info(str_pad(" \u{2514}", 13, "\u{2500}") ~ " " ~ someData["description"]);
+                if (auto description = someData.get("description", null)) {
+                     aConsoleIo.info(str_pad(" \u{2514}", 13, "\u{2500}") ~ " " ~ description.get!string);
                 }
             }
              aConsoleIo.out("");
